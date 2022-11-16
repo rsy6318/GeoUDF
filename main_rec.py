@@ -24,7 +24,7 @@ def log_string(out_str):
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--data_path', default='/gpfs1/scratch/siyuren2/shapenet_xu2_points/', help='train or test')
+    parser.add_argument('--data_path', required=True, help='train or test')
     parser.add_argument('--phase', default='train', help='train or test')
     parser.add_argument('--gpu', default='0', help='which gpu to use')
      
@@ -35,7 +35,7 @@ if __name__=='__main__':
     # for phase train
     #parser.add_argument('--log_dir', default='log', help='Log dir [default: log]')
     parser.add_argument('--batch_size', type=int, default=12, help='Batch Size during training')
-    parser.add_argument('--max_epoch', type=int, default=500, help='Epoch to run')
+    parser.add_argument('--max_epoch', type=int, default=300, help='Epoch to run')
     parser.add_argument('--learning_rate', type=float, default=0.0001)
     parser.add_argument('--min_lr', type=float, default=0.00001)
     

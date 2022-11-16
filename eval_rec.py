@@ -505,9 +505,11 @@ if __name__=='__main__':
     parser.add_argument('--lambda3',default=0.1, type=float,)
     
     parser.add_argument('--input', type=str,required=True,help='input point cloud path, ply file support')
-    parser.add_argument('--output', type=str,required=True,help='output triangle mesh path, ply file support')
+    parser.add_argument('--output', type=str,required=True,help='output triangle mesh path')
 
     parser.add_argument('--res', type=int,required=True,help='Resolution of E-MC',choices=[128,192])
+
+    parser.add_argument('--scale',type=bool,default=False,help='whether scale the input into a unit cube')
 
     arg = parser.parse_args()
 
@@ -532,6 +534,18 @@ if __name__=='__main__':
 
     pcd=o3d.io.read_point_cloud(arg.input)
     sparse_pc=np.asarray(pcd.points)
+
+
+    if arg.scale:
+        
+        sparse_pc_max=np.max(sparse_pc,axis=0,keepdims=True)
+        sparse_pc_min=np.min(sparse_pc,axis=0,keepdims=True)
+
+        center=(sparse_pc_max+sparse_pc_min)/2
+        scale=np,max(sparse_pc_max-sparse_pc_min)
+
+        sparse_pc=(sparse_pc-center)/scale
+
 
     sparse_pc=torch.from_numpy(sparse_pc).unsqueeze(0).transpose(1,2).cuda().float()
     output_dict=pu_model(sparse_pc)
@@ -594,6 +608,8 @@ if __name__=='__main__':
     grids_udf_grad=grids_udf_grad_flatten.reshape(N,N,N,3)
 
     vs,fs=custom_marching_cube(grids_coords,grids_udf,grids_udf_grad,voxel_size,N)
+
+    vs=vs*scale+center
 
     mesh=trimesh.Trimesh(vs,fs)
 

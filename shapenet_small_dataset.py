@@ -78,17 +78,6 @@ class mesh_pc_dataset(data.Dataset):
         df = df[idx2]
         closest_points = closest_points[idx2, :]
 
-        '''import open3d as o3d
-
-        pointcloud=o3d.geometry.PointCloud()
-        pointcloud.points=o3d.utility.Vector3dVector(lr_pc)
-        pointcloud.paint_uniform_color([0,0,1])
-
-        pointcloud2=o3d.geometry.PointCloud()
-        pointcloud2.points=o3d.utility.Vector3dVector(hr_pc)
-        pointcloud2.paint_uniform_color([0,1,1])
-
-        o3d.visualization.draw_geometries([pointcloud2,pointcloud])'''
 
         if self.mode=='train' and self.rot:
             Rot=self.rotate_point_cloud_and_gt()
@@ -106,10 +95,3 @@ class mesh_pc_dataset(data.Dataset):
             'file_name': data_path
         }
 
-
-if __name__=='__main__':
-    dataset=mesh_pc_dataset('/home/siyu_ren/shapenet_xu2_points')
-    out_dict=dataset[0]
-
-    np.savetxt('sparse.xyz',out_dict['sparse_pc'].numpy().T)
-    np.savetxt('dense.xyz',out_dict['dense_pc'].numpy().T)

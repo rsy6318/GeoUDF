@@ -28,7 +28,7 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser()
 
     #parser.add_argument('--train_record', default='D:\\PUGEO\\tfrecord_x4_normal\\*.tfrecord', help='data path')
-    parser.add_argument('--data_path', default='/data/siyuren_21/shapenet_xu2_points/', help='train or test')
+    parser.add_argument('--data_path', required=True, help='train or test')
     parser.add_argument('--phase', default='train', help='train or test')
     parser.add_argument('--gpu', default='0', help='which gpu to use')
      
