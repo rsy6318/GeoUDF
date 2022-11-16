@@ -507,6 +507,8 @@ if __name__=='__main__':
     parser.add_argument('--input', type=str,required=True,help='input point cloud path, ply file support')
     parser.add_argument('--output', type=str,required=True,help='output triangle mesh path, ply file support')
 
+    parser.add_argument('--res', type=int,required=True,help='Resolution of E-MC',choices=[128,192])
+
     arg = parser.parse_args()
 
     arg.log_path='log_reconstruction_%0.2f_%0.3f_%0.3f'%(arg.lambda1,arg.lambda2,arg.lambda3)
@@ -539,7 +541,7 @@ if __name__=='__main__':
 
     max_batch=2**16
 
-    N=128
+    N=arg.res
     size=1.05
     voxel_size=size/(N-1)
 
