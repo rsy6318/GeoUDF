@@ -24,7 +24,6 @@ def log_string(out_str):
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
 
-    #parser.add_argument('--train_record', default='D:\\PUGEO\\tfrecord_x4_normal\\*.tfrecord', help='data path')
     parser.add_argument('--data_path', default='/gpfs1/scratch/siyuren2/shapenet_xu2_points/', help='train or test')
     parser.add_argument('--phase', default='train', help='train or test')
     parser.add_argument('--gpu', default='0', help='which gpu to use')
@@ -95,7 +94,7 @@ if __name__=='__main__':
 
     optimizer=torch.optim.Adam(list(pu_model.parameters())+list(udf_model.parameters()),lr=current_lr)
 
-    scheduler = CosineAnnealingLR(optimizer, arg.max_epoch, eta_min=arg.min_lr)
+    #scheduler = CosineAnnealingLR(optimizer, arg.max_epoch, eta_min=arg.min_lr)
 
 
     if arg.resume:
@@ -107,7 +106,7 @@ if __name__=='__main__':
     global_step=0
 
     for epoch in range(arg.max_epoch):
-        scheduler.step()
+        #scheduler.step()
         
         loss_sum_all=[]
         loss_sum_dense_cd = []

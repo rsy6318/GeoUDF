@@ -39,7 +39,7 @@ if __name__=='__main__':
     # for phase train
     #parser.add_argument('--log_dir', default='log', help='Log dir [default: log]')
     parser.add_argument('--batch_size', type=int, default=16, help='Batch Size during training')
-    parser.add_argument('--max_epoch', type=int, default=800, help='Epoch to run')
+    parser.add_argument('--max_epoch', type=int, default=100, help='Epoch to run')
     parser.add_argument('--learning_rate', type=float, default=0.001)
     parser.add_argument('--min_lr', type=float, default=0.00001)
     
