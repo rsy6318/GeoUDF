@@ -542,7 +542,7 @@ if __name__=='__main__':
         sparse_pc_min=np.min(sparse_pc,axis=0,keepdims=True)
 
         center=(sparse_pc_max+sparse_pc_min)/2
-        scale=np,max(sparse_pc_max-sparse_pc_min)
+        scale=np.max(sparse_pc_max-sparse_pc_min)
 
         sparse_pc=(sparse_pc-center)/scale
 
