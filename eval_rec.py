@@ -609,7 +609,8 @@ if __name__=='__main__':
 
     vs,fs=custom_marching_cube(grids_coords,grids_udf,grids_udf_grad,voxel_size,N)
 
-    vs=vs*scale+center
+    if arg.scale:
+        vs=vs*scale+center
 
     mesh=trimesh.Trimesh(vs,fs)
 

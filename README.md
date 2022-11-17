@@ -1,17 +1,22 @@
 # GeoUDF
 ## Requirement
 ```
-pytorch
-pytorch3d==0.6.2
+pytorch             #1.10.0+cu111
+pytorch3d           #0.6.2
 open3d
 trimesh
 point-cloud-utils
+```
+### Install **pointnet2_ops**
+```
+cd pointnet2_ops_lib   
+python setup.py --install
 ```
 ## Data Preparation
 Download the data from [Google Drive](https://drive.google.com/drive/folders/1QGhDW335L7ra31uw5U-0V7hB-viA0JXr) (These shapes are processed by [DISN](https://github.com/Xharlie/DISN), remove the interior and non-manifold structures.)   
 Then use the codes in **scripts** to get the dataset.
 ```
-python scale_off.py   
+python scale_off.py   #data_path need to be changed   
 python pds_pc.py   
 python random_pc.py   
 python sample.py
