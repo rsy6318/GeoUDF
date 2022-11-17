@@ -1,7 +1,6 @@
 import sys
 import os
 os.environ['CUDA_VISIBLE_DEVICES']='0'
-#from _marching_cubes_lewiner import udf_mc_lewiner
 import numpy as np
 import pytorch3d
 import pytorch3d.ops

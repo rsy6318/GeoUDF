@@ -27,7 +27,6 @@ def log_string(out_str):
 if __name__=='__main__':
     parser = argparse.ArgumentParser()
 
-    #parser.add_argument('--train_record', default='D:\\PUGEO\\tfrecord_x4_normal\\*.tfrecord', help='data path')
     parser.add_argument('--data_path', required=True, help='train or test')
     parser.add_argument('--phase', default='train', help='train or test')
     parser.add_argument('--gpu', default='0', help='which gpu to use')
@@ -35,16 +34,13 @@ if __name__=='__main__':
     parser.add_argument('--model', default='model_pugeo', help='Model for upsampling')
     parser.add_argument('--min_num_point', type=int, default=3000, help='min Point Number')
     parser.add_argument('--max_num_point', type=int, default=48000, help='max Point Number')
-
-    # for phase train
-    #parser.add_argument('--log_dir', default='log', help='Log dir [default: log]')
+    
     parser.add_argument('--batch_size', type=int, default=16, help='Batch Size during training')
     parser.add_argument('--max_epoch', type=int, default=100, help='Epoch to run')
     parser.add_argument('--learning_rate', type=float, default=0.001)
     parser.add_argument('--min_lr', type=float, default=0.00001)
     
 
-    # for phase test
     parser.add_argument('--pretrained', default='', help='Model stored')
     parser.add_argument('--resume', type=bool, default=False, help='Number of points covered by patch')
     

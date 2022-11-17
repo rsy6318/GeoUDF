@@ -12,16 +12,7 @@ import pointnet2_ops.pointnet2_utils as utils
 import pytorch3d.ops
 import pytorch3d
 import torch.autograd as ag
-
-'''
-def diff(udf,xyz):
-    #udf: B,M
-    #xyz: B,M,3
-    #return: B,M,3
-    B,M=udf.shape
-
-    return ag.grad(udf.flatten(),xyz,grad_outputs=torch.ones(B*M,dtype=torch.float32).to(xyz.device),create_graph=True,allow_unused=True)[0]
- '''   
+  
 
 def knn(x, k):
     inner = -2 * torch.matmul(x.transpose(2, 1), x)
@@ -120,28 +111,6 @@ class PUGeo(nn.Module):
         
         self.uv_set=(0.1*(uv*2-1)).cpu()
 
-        '''if 0:
-            uv_set=self.uv_set.numpy()[10]
-            print(uv_set.shape)
-
-            u=torch.from_numpy(np.arange(0,grid_size,dtype = float).reshape(grid_size,1,1)).repeat(1,grid_size,1)/(grid_size-1)
-            v=torch.from_numpy(np.arange(0,grid_size,dtype = float).reshape(1,grid_size,1)).repeat(grid_size,1,1)/(grid_size-1)
-            uv_grid=(torch.cat((u,v),dim=2).reshape(-1,2).numpy()*2-1)*0.1
-
-            print(uv_grid.shape)
-
-            import matplotlib.pyplot as plt
-
-            plt.figure(figsize=(3, 3))
-            plt.scatter(uv_grid[:,0],uv_grid[:,1])
-            #plt.legend()
-            plt.xlim(-0.11,0.11)
-            plt.ylim(-0.11,0.11)
-            plt.xticks([])
-            plt.yticks([])
-            plt.savefig('before.pdf',bbox_inches='tight')
-
-            assert False'''
 
 
 
@@ -219,73 +188,12 @@ class PUGeo(nn.Module):
         xyz_grad_u=torch.matmul(uv_vector_grad_u,coefficient)   #(B,N,U,3)
         xyz_grad_v=torch.matmul(uv_vector_grad_v,coefficient)
 
-        """if torch.isnan(xyz_grad_u).any():
-            #print(torch.max(E_matric),torch.min(E_matric))
-            print('xyz_grad_u has nan')
-            assert False"""
-
-
-        #xyz_grad_uu=torch.matmul(uv_vector_grad_uu,coefficient) #(B,N,U,3)
-        #xyz_grad_uv=torch.matmul(uv_vector_grad_uv,coefficient)
-        #xyz_grad_vv=torch.matmul(uv_vector_grad_vv,coefficient) 
-
-        #jacobin_matrix=torch.cat((xyz_grad_u.unsqueeze(-1),xyz_grad_v.unsqueeze(-1)),dim=-1)    #(B,N,U,3,2)
-        #metric_tensor=torch.matmul(jacobin_matrix.transpose(-1,-2),jacobin_matrix)              #(B,N,U,2,2)
-
-        #E_matric=torch.sum(xyz_grad_u*xyz_grad_u,dim=3,keepdim=True)   #(B,N,U,1)
-        #F_matric=torch.sum(xyz_grad_u*xyz_grad_v,dim=3,keepdim=True)
-        #G_matric=torch.sum(xyz_grad_v*xyz_grad_v,dim=3,keepdim=True)
-
-
-        """if torch.isnan(E_matric).any():
-            print(torch.max(E_matric),torch.min(E_matric))
-            print('E_matric has nan')
-            assert False"""
-
-        #metric_tensor=torch.cat((E_matric,F_matric,F_matric,G_matric),dim=3).reshape(batch_size,num_point,up_ratio,2,2)     #(B,N,U,2,2)
 
         normal=torch.cross(xyz_grad_u,xyz_grad_v)
         normal=F.normalize(normal,dim=-1)                       #(B,N,U,3)
 
-        #c_mean=-1/torch.det(metric_tensor)*torch.sum(normal*(xyz_grad_uu*G_matric-2*xyz_grad_uv*F_matric+xyz_grad_vv*E_matric),dim=3)
-        #c_mean=c_mean.unsqueeze(-1)         #(B,N,U,1)
-        
-        #c_gauss=(torch.sum(normal*xyz_grad_uu,dim=3,keepdim=True)*torch.sum(normal*xyz_grad_uv,dim=3,keepdim=True)-torch.square(torch.sum(normal*xyz_grad_uv,dim=3,keepdim=True)))/(E_matric*G_matric-F_matric*F_matric)
-        
-        #influence_area=torch.sqrt(E_matric*G_matric-F_matric*F_matric)
-
-        #curves=torch.cat((c_mean,c_gauss),dim=3)
-        
-        '''if torch.isnan(c_mean).any():
-            print(torch.max(E_matric),torch.min(E_matric))
-            print('c_mean has nan')
-            assert False'''
-
-        """if torch.isnan(c_gauss).any():
-            print(torch.max(E_matric),torch.min(E_matric))
-            print('c gauss has nan')
-            assert False"""
-
-
-
-        '''xyz=xyz.reshape(batch_size,-1,3).transpose(2,1)             #(B,3,N*U)
-        normal=normal.reshape(batch_size,-1,3).transpose(2,1)       #(B,3,N*U)
-
-        uv_vector_grad_u_sparse=torch.concat((torch.zeros_like(u),torch.ones_like(u),torch.zeros_like(u),torch.zeros_like(u),torch.zeros_like(u),torch.zeros_like(u)),dim=-1)[:,:,0:1,:]        #(B,N,1,6)
-        uv_vector_grad_v_sparse=torch.concat((torch.zeros_like(u),torch.zeros_like(u),torch.ones_like(u),torch.zeros_like(u),torch.zeros_like(u),torch.zeros_like(u)),dim=-1)[:,:,0:1,:]        #(B,N,1,6)
-
-        xyz_grad_u_sparse=torch.matmul(uv_vector_grad_u_sparse,coefficient).squeeze(2)
-        xyz_grad_v_sparse=torch.matmul(uv_vector_grad_v_sparse,coefficient).squeeze(2)      #(B,N,3)
-
-        normal_sparse=F.normalize(torch.cross(xyz_grad_u_sparse,xyz_grad_v_sparse),dim=-1).transpose(2,1)'''
-
-        return {#'sparse_xyz':x.transpose(1,2),  #(B,N,3)
-                'dense_xyz':xyz.reshape(batch_size,-1,3),                #(B,N,U,3)
+        return {'dense_xyz':xyz.reshape(batch_size,-1,3),                #(B,N,U,3)
                 'dense_normal':normal.reshape(batch_size,-1,3),          #(B,N,U,3)            #'sparse_normal':normal_sparse,
-                #'curves':curves,                #(B,N,U,2)
-                #'influence_area':influence_area,#(B,N,U,1)
-                #'coefficient':coefficient,  #(B,N,6,3)
-                #'feature':concat
                 }
         
 class UDF(nn.Module):
@@ -326,7 +234,6 @@ class UDF(nn.Module):
 
         query=query.transpose(1,2)                      #(B,M,3)
 
-                                        #(B,N,U*3)  (B,N,K,U*3)     
 
         _,idx,query_knn_pc=pytorch3d.ops.knn_points(query,dense_pc,K=self.K,return_nn=True,return_sorted=False)             #(B,M,K)    (B,M,K,3)
         query_knn_normal=pytorch3d.ops.knn_gather(dense_normal,idx=idx)                                                     #(B,M,K,3)
@@ -360,21 +267,3 @@ class UDF(nn.Module):
 
         return udf,udf_grad
         
-
-
-if __name__ == '__main__':
-
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-
-    a = torch.rand(4, 3, 256)
-
-    net = PUGeo(knn=20).cuda()
-    a = a.cuda()
-    output_dict= net(a,up_ratio=16,poisson=True)
-    print(torch.sum(output_dict['sparse_normal']**2,dim=1))
-    
-    # print(d.size())
-    '''a=torch.tensor([[1,2,3],[4,5,6]])
-    print(a)
-    a=a.repeat(1,2)
-    print(a)'''
