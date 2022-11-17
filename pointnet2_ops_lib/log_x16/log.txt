@@ -1,3 +1,0 @@
-2022-10-17 05:54:27.185777
-/public/sdc/siyuren_21/FLEXPU/main.py
-Namespace(batch_size=12, data_path='/public/sdc/siyuren_21/shapenet_xu2_points_normal_patch', eval_xyz='/gpfs1/scratch/siyuren2/new_data/test/basic/', gpu='0', jitter_max=0.03, jitter_sigma=0.01, learning_rate=0.001, log_dir='log_x16', max_epoch=500, min_lr=1e-05, model='model_pugeo', num_patch=58, num_point=256, num_shape_point=5000, patch_num_ratio=3, phase='train', pretrained='', reg_normal1=0.1, reg_normal2=0.1, resume=False, up_ratio=16)
