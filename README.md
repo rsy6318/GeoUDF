@@ -1,11 +1,7 @@
 # GeoUDF  
 [arxiv](https://arxiv.org/abs/2211.16762)  
 
-
-<img src='demo/input.gif' width=24%> 
-<img src='demo/pu.gif' width=24%> 
-<img src='demo/result.gif' width=24%>
-<img src='demo/gt.gif' width=24%>
+<img src='demo/input.gif' width=150><img src='demo/pu.gif' width=150><img src='demo/result.gif' width=150><img src='demo/gt.gif' width=150>
 <center><div>Left to Right: Input, Upsampled, Ours, and GT.</div> </center>
   
 ## Requirement
