@@ -1,4 +1,6 @@
-# GeoUDF
+# GeoUDF  
+[arxiv](https://arxiv.org/abs/2211.16762)  
+
 ## Requirement
 ```
 pytorch             #1.10.0+cu111
