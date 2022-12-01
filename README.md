@@ -37,3 +37,15 @@ python eval_rec.py --res=128 --input='test_data/shapenet.ply' --output='test_dat
 python eval_rec.py --res=128 --input='test_data/MGN.ply' --output='test_data/MGN_mesh.ply'   
 python eval_rec.py --res=192 --input='test_data/scene.ply' --output='test_data/scene_mesh.ply' --scale=True
 ```
+
+## Citation  
+```bibtex
+@misc{ren2022geoudf,
+      title={GeoUDF: Surface Reconstruction from 3D Point Clouds via Geometry-guided Distance Representation}, 
+      author={Siyu Ren and Junhui Hou and Xiaodong Chen and Ying He and Wenping Wang},
+      year={2022},
+      eprint={2211.16762},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+```
