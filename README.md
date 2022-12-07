@@ -1,6 +1,6 @@
 # GeoUDF  
-## GeoUDF: Surface Reconstruction from 3D Point Clouds via Geometry-guided Distance Representation [arxiv](https://arxiv.org/abs/2211.16762)  
-    
+[arxiv](https://arxiv.org/abs/2211.16762)  
+
 <img src='demo/input.gif' width=24%> 
 <img src='demo/pu.gif' width=24%> 
 <img src='demo/result.gif' width=24%>
