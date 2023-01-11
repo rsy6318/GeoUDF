@@ -1,13 +1,18 @@
 # GeoUDF  
-## GeoUDF: Surface Reconstruction from 3D Point Clouds via Geometry-guided Distance Representation
-[arxiv](https://arxiv.org/abs/2211.16762)  
+## GeoUDF: Surface Reconstruction from 3D Point Clouds via Geometry-guided Distance Representation [[**Project Page**]](https://rsy6318.github.io/GeoUDF.html)  [[**arxiv**]](https://arxiv.org/abs/2211.16762)  
 
-<img src='demo/input.gif' width=24%> 
-<img src='demo/pu.gif' width=24%> 
-<img src='demo/result.gif' width=24%>
-<img src='demo/gt.gif' width=24%>
+<div class="container">
+<div class="row">
+<div class="col-12 text-center" id="pipeline">
+<img src='demo/input.gif' width=20%> 
+<img src='demo/pu.gif' width=20%> 
+<img src='demo/result.gif' width=20%>
+<img src='demo/gt.gif' width=20%>
 <center><div>Left to Right: Input, Upsampled, Ours, and GT.</div> </center>
-  
+</div>
+</div>
+</div>  
+      
 ## Requirement
 ```
 pytorch             #1.10.0+cu111
