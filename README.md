@@ -51,7 +51,7 @@ python eval_rec.py --res=192 --input='test_data/scene.ply' --output='test_data/s
 ```
 
 ## Video Demo
-<video src='demo/demo_video.mp4' width=90%> 
+<video src='demo/demo_video.mp4' width=90%></video>   
 
 ## Citation  
 ```bibtex
