@@ -50,6 +50,9 @@ python eval_rec.py --res=128 --input='test_data/MGN.ply' --output='test_data/MGN
 python eval_rec.py --res=192 --input='test_data/scene.ply' --output='test_data/scene_mesh.ply' --scale=True
 ```
 
+## Video Demo
+<video src='demo/demo_video.mp4' width=90%> 
+
 ## Citation  
 ```bibtex
 @misc{ren2022geoudf,
