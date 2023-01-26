@@ -24,7 +24,7 @@ point-cloud-utils
 ### Install **pointnet2_ops**
 ```
 cd pointnet2_ops_lib   
-python setup.py --install
+python setup.py install
 ```
 ## Data Preparation
 Download the data from [Google Drive](https://drive.google.com/drive/folders/1QGhDW335L7ra31uw5U-0V7hB-viA0JXr) (These shapes are processed by [DISN](https://github.com/Xharlie/DISN), remove the interior and non-manifold structures.)   
