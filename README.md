@@ -1,4 +1,4 @@
-# GeoUDF  
+# GeoUDF   
 ## GeoUDF: Surface Reconstruction from 3D Point Clouds via Geometry-guided Distance Representation [[**Project Page**]](https://rsy6318.github.io/GeoUDF.html)  [[**arxiv**]](https://arxiv.org/abs/2211.16762)  
 
 <div class="container">
@@ -12,6 +12,9 @@
 </div>
 </div>
 </div>  
+      
+## Todo  
+- [ ] Rearange the code.
       
 ## Requirement
 ```
