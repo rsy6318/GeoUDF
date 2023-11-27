@@ -52,12 +52,10 @@ python eval_rec.py --res=192 --input='test_data/scene.ply' --output='test_data/s
 
 ## Citation  
 ```bibtex
-@misc{ren2022geoudf,
-      title={GeoUDF: Surface Reconstruction from 3D Point Clouds via Geometry-guided Distance Representation}, 
-      author={Siyu Ren and Junhui Hou and Xiaodong Chen and Ying He and Wenping Wang},
-      year={2022},
-      eprint={2211.16762},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
+@inproceedings{ren2023geoudf,
+title={Geoudf: Surface reconstruction from 3d point clouds via geometry-guided distance representation},
+author={Ren, Siyu and Hou, Junhui and Chen, Xiaodong and He, Ying and Wang, Wenping},
+booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+pages={14214--14224},
+year={2023}}
 ```
