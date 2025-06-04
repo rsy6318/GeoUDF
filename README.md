@@ -1,6 +1,8 @@
 # GeoUDF (ICCV 2023)
 ## GeoUDF: Surface Reconstruction from 3D Point Clouds via Geometry-guided Distance Representation [[**Project Page**]](https://rsy6318.github.io/GeoUDF.html)  [[**arxiv**]](https://arxiv.org/abs/2211.16762)  
 
+![image](ICCV_Poster.png)
+
 <div class="container">
 <div class="row">
 <div class="col-12 text-center" id="pipeline">
