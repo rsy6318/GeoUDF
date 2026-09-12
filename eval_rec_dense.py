@@ -8,6 +8,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from model import PUGeo,UDF
+from emc_torch import custom_marching_cube as _custom_marching_cube_torch
 import trimesh
 import argparse
 import open3d as o3d
@@ -276,212 +277,28 @@ triTable =[
             [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]]
 
 
-def oct2bin(x):
-    assert x>=0
-    assert x<128
-    result=[]
-    for _ in range(8):
-        result.append(x%2)
-        x=x//2
-    return np.array(result,dtype=np.int64)
 
-optimize_dict=[oct2bin(x) for x in range(128)]
-optimize_dict=np.array(optimize_dict)
-
-edge_condition_table=np.zeros((256,12))
-for i in range(256):
-    condition1=triTable[i]
-    num=np.sum(np.array(condition1)>-1)
-    if num>0:
-        for j in range(num):
-            edge_condition_table[i,condition1[j]]=1
-
-
-all_vert_comb=[]
-for i in range(7):
-    for j in range(i+1,8):
-        all_vert_comb.append([i,j])
-
-all_vert_comb=np.array(all_vert_comb)
-
-
-#
-#@ti.func
-@numba.jit(nopython=True, fastmath=True)
-def edge_interp_point(p1,udf1,p2,udf2):
-
-    if udf1<=0.0005 and udf2>0.0005:
-        return p1
-    if udf2<=0.0005 and udf1>0.0005:
-        return p2
-    if udf1<=0.0005 and udf2<=0.0005:
-        return (p1+p2)/2
-
-    interp_point=(p1*udf2+p2*udf1)/(udf1+udf2)
-    return interp_point
-
-#@ti.func
-@numba.jit(nopython=True, fastmath=True)
-def edge_detector(p1,p2,p1_udf,p2_udf,p1_grad,p2_grad,voxel_size):
-    
-    if p1_udf<0.0005:
-        return 1
-    
-    if p2_udf<0.0005:
-        return 1
-    
-    c=(p1+p2)/2
-    cp1=p1-c
-    cp2=p2-c
-
-    if np.sum(p1_grad*p2_grad)<0 and p1_udf<(voxel_size*1.1) and p2_udf<(voxel_size*1.1) and np.sum(cp1*p1_grad)>0 and np.sum(cp2*p2_grad)>0 :
-        return 1
-    else:
-        return 0
-
-
-cube_vert_offset=np.array([     [0,0,0],
-                                [1,0,0],
-                                [1,0,1],
-                                [0,0,1],
-                                [0,1,0],
-                                [1,1,0],
-                                [1,1,1],
-                                [0,1,1]],dtype=np.int64)
-
-edge_vert_index=np.array([  [0,1],
-                            [1,2],
-                            [3,2],
-                            [0,3],
-                            [4,5],
-                            [5,6],
-                            [7,6],
-                            [4,7],
-                            [0,4],
-                            [1,5],
-                            [2,6],
-                            [3,7]],dtype=np.int64)
-
-loss_dict=np.zeros((2,2,2))
-loss_dict[0,0,0]=0
-loss_dict[0,0,1]=1
-loss_dict[0,1,0]=1
-loss_dict[0,1,1]=0
-loss_dict[1,0,0]=1
-loss_dict[1,0,1]=0
-loss_dict[1,1,0]=0
-loss_dict[1,1,1]=1
-
-@numba.jit(nopython=True, fastmath=True)
-def edge_detector_all(grids_coords,grids_udf,grids_udf_grad,voxel_size,i,j,k,all_vert_comb,cube_vert_offset):
-    '''
-    8
-    '''
-    edge_detection=np.zeros(28)
-    for comb_index in range(28):
-        p1_index=all_vert_comb[comb_index,0]
-        p2_index=all_vert_comb[comb_index,1]
-
-        p1_index_global=np.array([i,j,k])+cube_vert_offset[p1_index]
-        p2_index_global=np.array([i,j,k])+cube_vert_offset[p2_index]
-
-        p1=grids_coords[p1_index_global[0],p1_index_global[1],p1_index_global[2],:]
-        p2=grids_coords[p2_index_global[0],p2_index_global[1],p2_index_global[2],:]
-        p1_udf=grids_udf[p1_index_global[0],p1_index_global[1],p1_index_global[2]]
-        p2_udf=grids_udf[p2_index_global[0],p2_index_global[1],p2_index_global[2]]
-        p1_grad=grids_udf_grad[p1_index_global[0],p1_index_global[1],p1_index_global[2],:]
-        p2_grad=grids_udf_grad[p2_index_global[0],p2_index_global[1],p2_index_global[2],:]
-        vert_on_this_edge=edge_detector(p1,p2,p1_udf,p2_udf,p1_grad,p2_grad, voxel_size)
-        if vert_on_this_edge:
-            edge_detection[comb_index]=1
-        else:
-            edge_detection[comb_index]=0
-    return edge_detection
-
-@numba.jit(nopython=True, fastmath=True)
-def glb_optimize_cube(edge_detection_all_comb,all_vert_comb,optimize_dict):
-    #edge_detection_all_comb:   (28,)
-    #all_vert_comb          :   (28,2)
-    #optimize_dict          :   (128,8 )
-
-    best_loss=1e10
-    final_occcondition=optimize_dict[0]
-
-    if np.max(edge_detection_all_comb)>0:
-        for condition_idx in range(128):
-            occ_condition=optimize_dict[condition_idx]     #(8,)
-            current_loss=0
-            for idx in range(28):
-                p1_idx=all_vert_comb[idx,0]
-                p2_idx=all_vert_comb[idx,1]
-                p1_occ=occ_condition[p1_idx]
-                p2_occ=occ_condition[p2_idx]
-                edge_condition=edge_detection_all_comb[idx]
-                current_loss=current_loss+loss_dict[int(edge_condition),p1_occ,p2_occ]
-            if current_loss<best_loss:
-                best_loss=current_loss
-                final_occcondition=occ_condition
-    else:
-        final_occcondition=optimize_dict[0]
-
-    return final_occcondition
-
-
-def custom_marching_cube(grids_coords:np.array,grids_udf:np.array,grids_udf_grad:np.array,voxel_size:float,N:int):
-
-    #grids_coords:      (N,N,N,3)
-    #grids_udf:         (N,N,N)
-    #grids_udf_grad:    (N,N,N,3)
-    vs = {}
-    fs = []
-
-    for i in range(N-1):
-        for j in range(N-1):
-            for k in range(N-1):
-                # cube_index is (i,j,k)
-                #print(i,j,k)
-
-                p1_index=np.array([i,j,k])+cube_vert_offset[edge_vert_index[0,0]]
-                p1_udf=grids_udf[p1_index[0],p1_index[1],p1_index[2]]
-                if p1_udf>(voxel_size*2):
-                    continue
-
-                edge_detection_all_comb=edge_detector_all(grids_coords,grids_udf,grids_udf_grad,voxel_size,i,j,k,all_vert_comb,cube_vert_offset)
-                occ_condition=glb_optimize_cube(edge_detection_all_comb,all_vert_comb,optimize_dict)
-                condition_idx=np.sum(occ_condition*(2**np.arange(8)))
-                tri_edges=triTable[condition_idx]
-                if tri_edges[0]<0:
-                    continue
-                else:
-                    vert_on_edges=np.zeros((12,3))
-                    for edge_idx in range(12):
-                        p1_idx=edge_vert_index[edge_idx,0]
-                        p2_idx=edge_vert_index[edge_idx,1]
-                        p1_index=np.array([i,j,k])+cube_vert_offset[p1_idx]
-                        p2_index=np.array([i,j,k])+cube_vert_offset[p2_idx]
-
-                        p1=grids_coords[p1_index[0],p1_index[1],p1_index[2],:]
-                        p2=grids_coords[p2_index[0],p2_index[1],p2_index[2],:]
-                        p1_udf=grids_udf[p1_index[0],p1_index[1],p1_index[2]]
-                        p2_udf=grids_udf[p2_index[0],p2_index[1],p2_index[2]]
-                        vert_on_edges[edge_idx,:]=edge_interp_point(p1,p1_udf,p2,p2_udf)
-                    tri_edges = [tri_edges[3 * i : 3 * i + 3] for i in range(len(tri_edges) // 3)]
-                    triangles = [vert_on_edges[e] for e in tri_edges if e[0] >= 0]
-                    triangles = np.stack(triangles)
-
-                    for t in triangles:
-                        vid_list = []
-                        for v in t:
-                            v = tuple(v)
-                            if v not in vs:
-                                vs[v] = len(vs) + 1
-                            vid_list.append(vs[v])
-                        fs.append(vid_list)
-
-    vs, fs = np.array(list(vs.keys())), np.array(fs) - 1
-
-    return vs, fs
-
+def custom_marching_cube(
+    grids_coords: np.ndarray,
+    grids_udf: np.ndarray,
+    grids_udf_grad: np.ndarray,
+    voxel_size: float,
+    N: int,
+    *,
+    device=None,
+    cube_batch_size=None,
+):
+    """Run the shared, memory-bounded PyTorch E-MC implementation."""
+    return _custom_marching_cube_torch(
+        grids_coords,
+        grids_udf,
+        grids_udf_grad,
+        voxel_size,
+        N,
+        triTable,
+        device=device,
+        cube_batch_size=cube_batch_size,
+    )
 
 def get_udf(udf_model,output_dict,query):
     query=query.unsqueeze(0).transpose(1,2)     #(1,C,M)
